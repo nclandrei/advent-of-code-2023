@@ -22,8 +22,6 @@
   [d]
   (if (contains? letter-digits d) (str (letter-digits d)) (str d)))
 
-(re-seq pattern "ninezjtxp7bpzdgtoneeightoneighth")
-
 (defn number-1
   [line]
   (let [dd (filter #(Character/isDigit %) line)]
@@ -50,9 +48,4 @@
    (map number-2)
    (filter #(not (nil? %)))
    (reduce +)))
-
-(day-1-part-1)
-(day-1-part-2)
-
-
 
