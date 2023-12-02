@@ -32,4 +32,13 @@
    (map #(first %))
    (apply +)))
 
+(defn day-1-part-2
+  []
+  (->>
+   (read-data "/Users/anicolae/Code/advent-of-code-2023/resources/day-2.txt")
+   (map parse-line)
+   (map #(apply * (rest %)))
+   (apply +)))
+
 (day-1-part-1)
+(day-1-part-2)
