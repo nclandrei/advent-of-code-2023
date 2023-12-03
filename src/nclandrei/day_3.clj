@@ -1,49 +1,33 @@
 (ns day-3
-  (:require [clojure.java.io :as io]
-            [clojure.string :as string]))
-
-(def resource-path "/Users/anicolae/Code/advent-of-code-2023/resources/day-3.txt")
-(def data (read-data resource-path))
-(def columns (count (first data)))
-(def rows (count data))
-
-(defn read-data [fname]
-  (with-open [rdr (io/reader fname)]
-    (doall (line-seq rdr))))
-
-(defn parse-line-part
-  [part]
-  (let [first-element (first part)
-        part-length (count part)]
-    (if
-     (Character/isDigit first-element) (Integer/parseInt (apply str part))
-     (map #(if (= \. %) :non-symbol :symbol) part))))
+  (:require [util :as u]))
 
 (defn parse-line
   [line]
-  (->>
-   (partition-by #(not (Character/isDigit %)) line)
-   (map parse-line-part)
-   (flatten)))
+  (partition-by #(not (Character/isDigit %)) line))
 
-(defn adjacent-coordinates
-  [n row column]
-  (let [digits-count (count (str n))
-        min-left (max 0 (- column digits-count))
-        max-right (min columns (+ column digits-count))
-        min-top (max 0 (dec row))
-        max-bottom (min rows (inc row))]
-    ()))
+(defn numbers-on-line
+  [line]
+  (let [indexed-line (map-indexed (fn [idx itm] [idx itm]) line)]
+    (reduce (fn [acc [idx ch]]
+              (cond
+                (and (Character/isDigit %) (nil? (acc :start-index))) (assoc acc :current-number (str ch) :start-index idx) ; beginning of a number
+                (and (Character/isDigit %) (some? (acc :start-index))) (assoc acc :current-number (str (acc :current-number) ch)) ; we're STILL inside a number
+                (and (not (Character/isDigit %)) (some? (acc :current-number))) (assoc acc :numbers () :current-number (str (acc :current-number) ch)) ; we just finished a number and we had one before
+                )){:numbers [] :start-index nil :current-number nil} indexed-line) :numbers))
 
-(defn day-1-part-1
-  []
-  (->>
-   (read-data "/Users/anicolae/Code/advent-of-code-2023/resources/day-3.txt")
-   (map parse-line)))
+({:a 123} :a)
 
-(day-1-part-1)
+(parse-line "467..114..")
 
-(parse-line ".664.598*.")
+;; (/1 /2 /3)(..)(/1 /1 /4)($.)
+
+(def numbers
+  [data]
+  (for [line data
+        row-index (range (count data))]
+    (let [parsed-line (parse-line line)])))
+
+(numbers (u/read-data "day-3.txt"))
 
 
 
