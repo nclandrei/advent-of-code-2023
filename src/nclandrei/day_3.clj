@@ -28,16 +28,16 @@
   (->>
    (map-indexed (fn [idx line] (re-seq-pos #"\d+" line idx)) data)
    (flatten)
-   (filter #(part-number? (get % :y) (get % :start) (get % :end)))
-   (reduce + 0)))
-
-(re-seq-pos #"\d+" "467..114..")
+   (filter #(part-number? (:y %) (:start %) (:end %)))
+   (map #(:group %))
+   (apply +)))
 
 (day-1-part-1)
 
 (part-number? 0 7 8)
 
 (numbers-on-line "467..114..")
+
 
 
 
