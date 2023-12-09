@@ -1,41 +1,43 @@
 (ns day-3
   (:require [util :as u]))
 
-(defn parse-line
-  [line]
-  (partition-by #(not (Character/isDigit %)) line))
+(def data (vec (u/read-data "day-3.txt")))
 
-(defn numbers-on-line
-  [line]
-  (let [indexed-line (map-indexed (fn [idx itm] [idx itm]) line)]
-    (reduce (fn [acc [idx ch]]
-              (cond
-                (and (Character/isDigit %) (nil? (acc :start-index))) (assoc acc :current-number (str ch) :start-index idx) ; beginning of a number
-                (and (Character/isDigit %) (some? (acc :start-index))) (assoc acc :current-number (str (acc :current-number) ch)) ; we're STILL inside a number
-                (and (not (Character/isDigit %)) (some? (acc :current-number))) (assoc acc :numbers () :current-number (str (acc :current-number) ch)) ; we just finished a number and we had one before
-                )){:numbers [] :start-index nil :current-number nil} indexed-line) :numbers))
+(defn re-seq-pos [pattern line y]
+  (let [m (re-matcher pattern line)]
+    ((fn step []
+       (when (. m find)
+         (cons {:start (. m start) :y y :end (. m end) :group (Integer/parseInt (. m group))}
+               (lazy-seq (step))))))))
 
-({:a 123} :a)
+(defn chars-on-line
+  [line start end]
+  (if (nil? line) [] (take (inc (- end start)) (drop (dec start) line))))
 
-(parse-line "467..114..")
+(defn adjacent-chars
+  [y start end]
+  (flatten (map #(chars-on-line % start end) [(get data y) (get data (inc y)) (get data (dec y))])))
 
-;; (/1 /2 /3)(..)(/1 /1 /4)($.)
+(defn part-number?
+  [y start end]
+  (let [adjacent-chars (adjacent-chars y start end)]
+    (not (empty? (filter #(and (not (Character/isDigit %)) (not= % \.)) adjacent-chars)))))
 
-(def numbers
-  [data]
-  (for [line data
-        row-index (range (count data))]
-    (let [parsed-line (parse-line line)])))
+(defn day-1-part-1
+  []
+  (->>
+   (map-indexed (fn [idx line] (re-seq-pos #"\d+" line idx)) data)
+   (flatten)
+   (filter #(part-number? (get % :y) (get % :start) (get % :end)))
+   (reduce + 0)))
 
-(numbers (u/read-data "day-3.txt"))
+(re-seq-pos #"\d+" "467..114..")
 
+(day-1-part-1)
 
+(part-number? 0 7 8)
 
-
-
-
-
-
+(numbers-on-line "467..114..")
 
 
 
