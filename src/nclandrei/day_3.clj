@@ -12,36 +12,31 @@
 
 (defn chars-on-line
   [line start end]
-  (if (nil? line) [] (take (inc (- end start)) (drop (dec start) line))))
+  (drop (dec start) (take (inc end) line)))
+
+(defn line
+  [y]
+  (or (get data y) []))
 
 (defn adjacent-chars
   [y start end]
-  (flatten (map #(chars-on-line % start end) [(get data y) (get data (inc y)) (get data (dec y))])))
+   (map #(chars-on-line % start end)
+        [(line y)
+         (line (inc y))
+         (line (dec y))]))
 
 (defn part-number?
   [y start end]
-  (let [adjacent-chars (adjacent-chars y start end)]
-    (not (empty? (filter #(and (not (Character/isDigit %)) (not= % \.)) adjacent-chars)))))
+  (let [adjacent-chars (flatten (adjacent-chars y start end))]
+      (not (empty? (filter #(and (not (Character/isDigit %)) (not= % \.)) adjacent-chars)))))
 
 (defn day-1-part-1
   []
   (->>
    (map-indexed (fn [idx line] (re-seq-pos #"\d+" line idx)) data)
    (flatten)
-   (filter #(part-number? (:y %) (:start %) (:end %)))
-   (map #(:group %))
+   (filter #(and (some? %) (part-number? (% :y) (% :start) (% :end))))
+   (map #(% :group))
    (apply +)))
 
 (day-1-part-1)
-
-(part-number? 0 7 8)
-
-(numbers-on-line "467..114..")
-
-
-
-
-
-
-
-
